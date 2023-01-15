@@ -37,20 +37,19 @@ slirp-builder:
 
 qemu-builder:
 	FROM +mingw-builder
-	GIT CLONE --branch v7.2.0-win32-debug https://github.com/LindirQuenya/qemu.git /build/qemu
-	WORKDIR /build/qemu/build
-	# TODO: fix deps so that hexagon works.
 	COPY +glib-builder/mingw32-glib2.rpm /mingw32-glib2.rpm
 	COPY +slirp-builder/mingw32-libslirp.rpm /mingw32-libslirp.rpm
 	RUN dnf install -y /mingw32-glib2.rpm mingw32-pixman /mingw32-libslirp.rpm iasl genisoimage gcc sparse
+	GIT CLONE --branch v7.2.0-win32-debug https://github.com/LindirQuenya/qemu.git /build/qemu
+	WORKDIR /build/qemu/build
 	RUN ../configure --cross-prefix=i686-w64-mingw32- --disable-docs --disable-guest-agent --disable-vnc --target-list=i386-softmmu --disable-cloop --disable-bochs \
 			--disable-vdi --disable-dmg --disable-parallels --disable-qed --disable-vvfat --enable-slirp --disable-sdl --disable-bzip2 --disable-qcow1 \
 			--disable-curl --disable-png --enable-pie --enable-lto --enable-membarrier --enable-sparse --enable-strip --prefix=/qemu
 	RUN make
 	RUN make install
 	WORKDIR /qemu
-	RUN cp "$(i686-w64-mingw32-gcc --print-sysroot)/mingw/bin/gspawn-win32-helper{,-console}.exe" /qemu/
+	RUN cp "$(i686-w64-mingw32-gcc --print-sysroot)/mingw/bin/gspawn-win32-helper.exe" "$(i686-w64-mingw32-gcc --print-sysroot)/mingw/bin/gspawn-win32-helper-console.exe" /qemu/
 	COPY copy_dlls.py copy_dlls.py
 	RUN python3 copy_dlls.py qemu-system-i386.exe
 	RUN zip -9r /qemu.zip *
-	SAVE ARTIFACT /qemu.zip
+	SAVE ARTIFACT /qemu.zip AS LOCAL qemu.zip
