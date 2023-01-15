@@ -2,7 +2,7 @@
 mingw-builder:
 	FROM fedora:37
 	RUN dnf -y install mingw32-pkg-config mingw32-gcc mingw32-gcc-c++ wget curl xz tar meson ninja-build git make rpm-build squashfs-tools ruby-devel \
-				mingw32-gettext mingw32-libffi mingw32-zlib mingw32-pcre2 && dnf clean all
+				mingw32-gettext mingw32-libffi mingw32-zlib mingw32-pcre2
 	RUN gem install fpm
 	WORKDIR /build
 
@@ -38,7 +38,7 @@ qemu-builder:
 	COPY +glib-builder/mingw32-glib2.rpm /mingw32-glib2.rpm
 	COPY +slirp-builder/mingw32-libslirp.rpm /mingw32-libslirp.rpm
 	RUN dnf install -y /mingw32-glib2.rpm mingw32-pixman /mingw32-libslirp.rpm iasl genisoimage gcc sparse mingw32-gtk3
-	GIT CLONE --branch v7.2.0-win32-debug https://github.com/LindirQuenya/qemu.git /build/qemu
+	GIT CLONE --branch win32-exec-migration https://github.com/LindirQuenya/qemu.git /build/qemu
 	WORKDIR /build/qemu/build
 	RUN ../configure --cross-prefix=i686-w64-mingw32- --disable-docs --disable-guest-agent --disable-vnc --target-list=i386-softmmu --disable-cloop --disable-bochs \
 			--disable-vdi --disable-dmg --disable-parallels --disable-qed --disable-vvfat --enable-slirp --disable-sdl --disable-bzip2 --disable-qcow1 \
